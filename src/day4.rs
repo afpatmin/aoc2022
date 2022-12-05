@@ -7,18 +7,20 @@ impl IdRange {
     pub fn from_string(data: &str) -> IdRange {
         let mut parts = data.split('-');
 
-        IdRange {
-            min: parts
-                .next()
-                .expect("Bad IdRange input")
-                .parse()
-                .expect("Not a valid integer"),
-            max: parts
-                .next()
-                .expect("Bad IdRange input")
-                .parse()
-                .expect("Not a valid integer"),
+        if let Some(str_min) = parts.next() {
+            if let Some(str_max) = parts.next() {
+                let min = match str_min.trim().parse() {
+                    Ok(min) => min,
+                    _ => 0,
+                };
+                let max = match str_max.trim().parse() {
+                    Ok(max) => max,
+                    _ => 0,
+                };
+                return IdRange { min: min, max: max };
+            }
         }
+        IdRange { min: 0, max: 0 }
     }
 
     pub fn is_fully_contained_within(&self, other: &IdRange) -> bool {
