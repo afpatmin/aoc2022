@@ -36,6 +36,10 @@ fn solve_day4() -> (u16, u16) {
     )
 }
 
-fn solve_day5() -> (u16, u16) {
-    (0, 0)
+fn solve_day5() -> (String, String) {
+    let input = fs::read_to_string("day5.txt").expect("Should have been able to read day5.txt");
+    (
+        day5::parse_instructions(&input, false),
+        day5::parse_instructions(&input, true),
+    )
 }
