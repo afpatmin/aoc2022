@@ -25,7 +25,7 @@ impl StockPile {
         Err(String::from("Invalid StockPile data"))
     }
 
-    fn move_crates(&mut self, from_col: usize, to_col: usize, num_crates: u8) {
+    fn move_crates(&mut self, from_col: usize, to_col: usize, num_crates: u32) {
         let mut moved_crates: Vec<char> = vec![];
         for _ in 0..num_crates {
             if let Some(moved_crate) = self.crates[from_col].pop() {
@@ -68,7 +68,7 @@ impl StockPile {
 }
 
 enum CraneAction {
-    Move(u8),
+    Move(u32),
 }
 
 struct CraneInstruction {
@@ -81,7 +81,7 @@ impl CraneInstruction {
     pub fn parse(input: &str) -> Result<CraneInstruction, String> {
         let parts: Vec<&str> = input.split(" ").collect();
         if parts.len() == 6 {
-            if let Ok(num_crates) = parts[1].trim().parse::<u8>() {
+            if let Ok(num_crates) = parts[1].trim().parse::<u32>() {
                 let action = match parts[0].trim() {
                     "move" => CraneAction::Move(num_crates),
                     _ => CraneAction::Move(num_crates),
