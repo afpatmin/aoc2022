@@ -47,5 +47,6 @@ fn solve_day5() -> (String, String) {
 }
 
 fn solve_day6() -> (u16, u16) {
-    (0, 0)
+    let input = fs::read_to_string("day6.txt").expect("Should have been able to read day6.txt");
+    (day6::find_start_of_packet_index(&input), 0)
 }
