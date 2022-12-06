@@ -4,12 +4,14 @@ mod day2;
 mod day3;
 mod day4;
 mod day5;
+mod day6;
 
 fn main() {
     println!("Day 2: {:?}", solve_day2());
     println!("Day 3: {:?}", solve_day3());
     println!("Day 4: {:?}", solve_day4());
     println!("Day 5: {:?}", solve_day5());
+    println!("Day 6: {:?}", solve_day6());
 }
 
 fn solve_day2() -> (u16, u16) {
@@ -42,4 +44,8 @@ fn solve_day5() -> (String, String) {
         day5::parse_instructions(&input, false),
         day5::parse_instructions(&input, true),
     )
+}
+
+fn solve_day6() -> (u16, u16) {
+    (0, 0)
 }
