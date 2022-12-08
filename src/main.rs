@@ -5,6 +5,7 @@ mod day3;
 mod day4;
 mod day5;
 mod day6;
+mod day7;
 
 fn main() {
     println!("Day 2: {:?}", solve_day2());
@@ -12,6 +13,7 @@ fn main() {
     println!("Day 4: {:?}", solve_day4());
     println!("Day 5: {:?}", solve_day5());
     println!("Day 6: {:?}", solve_day6());
+    println!("Day 7: {:?}", solve_day7());
 }
 
 fn solve_day2() -> (u16, u16) {
@@ -51,5 +53,14 @@ fn solve_day6() -> (usize, usize) {
     (
         day6::find_marker_index(&input, day6::MarkerType::Packet).expect("Start index not found"),
         day6::find_marker_index(&input, day6::MarkerType::Message).expect("Start index not found"),
+    )
+}
+
+fn solve_day7() -> (usize, usize) {
+    let input = fs::read_to_string("day7.txt").expect("Should have been able to read day7.txt");
+    let filesystem = day7::FileSystem::from_commands(&input);
+    (
+        day7::sum_bytesizes(&filesystem.root, 100000, 0),
+        day7::find_directory_to_delete(&filesystem.root, 70000000, 30000000),
     )
 }
