@@ -69,5 +69,8 @@ fn solve_day7() -> (usize, usize) {
 
 fn solve_day8() -> (usize, usize) {
     let input = fs::read_to_string("day8.txt").expect("Should have been able to read day8.txt");
-    (day8::visible_trees_in(&input), 0)
+    (
+        day8::visible_trees_in(&input),
+        day8::highest_scenic_score(&input),
+    )
 }

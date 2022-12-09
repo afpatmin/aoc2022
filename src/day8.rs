@@ -1,5 +1,4 @@
 use std::collections::HashSet;
-
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Hash)]
 struct Coord {
     row: usize,
@@ -48,6 +47,96 @@ fn visible_in(line: &Vec<Coord>) -> Vec<Coord> {
         }
     }
     output
+}
+
+pub fn highest_scenic_score(input: &str) -> usize {
+    let coords = parse_input(input);
+
+    let mut max_score = 0;
+    for row in &coords {
+        for coord in row {
+            let score = scenic_score_of(coord, &coords);
+            if score >= max_score {
+                max_score = score;
+            }
+        }
+    }
+
+    max_score
+}
+
+fn scenic_score_of(coord: &Coord, coords: &Vec<Vec<Coord>>) -> usize {
+    let mut distances: Vec<u8> = vec![0, 0, 0, 0];
+
+    // North
+    if coord.row > 0 {
+        if let Some(row) = coords.get(coord.row - 1) {
+            if let Some(compare) = row.get(coord.col) {
+                distances[0] = sum_distance(coord, compare, coords, 0);
+            }
+        }
+    }
+    // West
+    if let Some(row) = coords.get(coord.row) {
+        if coord.col > 0 {
+            if let Some(compare) = row.get(coord.col - 1) {
+                distances[1] = sum_distance(coord, compare, coords, 0);
+            }
+        }
+    }
+    // South
+    if let Some(row) = coords.get(coord.row + 1) {
+        if let Some(compare) = row.get(coord.col) {
+            distances[2] = sum_distance(coord, compare, coords, 0);
+        }
+    }
+    // East
+    if let Some(row) = coords.get(coord.row) {
+        if let Some(compare) = row.get(coord.col + 1) {
+            distances[3] = sum_distance(coord, compare, coords, 0);
+        }
+    }
+    distances.iter().fold(1, |acc, i| acc * *i as usize)
+}
+
+fn sum_distance(
+    coord: &Coord,
+    compare_coord: &Coord,
+    coords: &Vec<Vec<Coord>>,
+    accumulated: u8,
+) -> u8 {
+    if coord.height <= compare_coord.height {
+        return accumulated + 1;
+    } else {
+        let mut move_x = compare_coord.col as i16 - coord.col as i16;
+        if move_x != 0 {
+            move_x = match move_x.is_negative() {
+                true => -1,
+                false => 1,
+            }
+        }
+
+        let mut move_y = compare_coord.row as i16 - coord.row as i16;
+        if move_y != 0 {
+            move_y = match move_y.is_negative() {
+                true => -1,
+                false => 1,
+            }
+        }
+
+        let row = compare_coord.row as i16 + move_y;
+        let col = compare_coord.col as i16 + move_x;
+
+        if row >= 0 && col >= 0 {
+            if let Some(next_row) = coords.get(row as usize) {
+                if let Some(next_coord) = next_row.get(col as usize) {
+                    return sum_distance(coord, next_coord, coords, accumulated) + 1;
+                }
+            }
+        }
+
+        return accumulated + 1;
+    }
 }
 
 fn parse_input(input: &str) -> Vec<Vec<Coord>> {
