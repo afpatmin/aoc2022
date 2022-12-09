@@ -76,8 +76,7 @@ impl Position {
 }
 
 struct Rope {
-    head: Position,
-    tail: Position,
+    knots: Vec<Position>,
     visited: HashSet<Position>,
 }
 
@@ -87,22 +86,32 @@ impl Rope {
         visited.insert(Position { x, y });
 
         Rope {
-            head: Position { x, y },
-            tail: Position { x, y },
+            knots: vec![
+                Position { x, y },
+                Position { x, y },
+                Position { x, y },
+                Position { x, y },
+                Position { x, y },
+                Position { x, y },
+                Position { x, y },
+                Position { x, y },
+                Position { x, y },
+                Position { x, y },
+            ],
             visited,
         }
     }
     /// Move the head and pull the tail with it
     pub fn move_head(&mut self, direction: &Direction) {
-        self.head.move_in_direction(direction);
-        let vector = self.head.vector_from(&self.tail);
-        // The tail is too far away, move it
-        if vector.len() > (2.0 as f32).sqrt() {
-            self.tail.move_in_direction(&vector.direction());
+        self.knots[0].move_in_direction(direction);
+        for i in 0..self.knots.len() - 1 {
+            let vector = self.knots[i].vector_from(&self.knots[i + 1]);
+            // The tail is too far away, move it
+            if vector.len() > (2.0 as f32).sqrt() {
+                self.knots[i + 1].move_in_direction(&vector.direction());
+            }
         }
-        //println!("H: {:?}, T: {:?}", self.head, self.tail);
-
-        self.visited.insert(self.tail);
+        self.visited.insert(*self.knots.last().unwrap());
     }
 }
 
