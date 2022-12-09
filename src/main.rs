@@ -7,6 +7,7 @@ mod day5;
 mod day6;
 mod day7;
 mod day8;
+mod day9;
 
 fn main() {
     println!("Day 2: {:?}", solve_day2());
@@ -16,6 +17,7 @@ fn main() {
     println!("Day 6: {:?}", solve_day6());
     println!("Day 7: {:?}", solve_day7());
     println!("Day 8: {:?}", solve_day8());
+    println!("Day 9: {:?}", solve_day9());
 }
 
 fn solve_day2() -> (u16, u16) {
@@ -73,4 +75,9 @@ fn solve_day8() -> (usize, usize) {
         day8::visible_trees_in(&input),
         day8::highest_scenic_score(&input),
     )
+}
+
+fn solve_day9() -> (usize, usize) {
+    let input = fs::read_to_string("day9.txt").expect("Should have been able to read day9.txt");
+    (day9::positions_visited_by_tail(&input), 0)
 }
