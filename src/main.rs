@@ -6,6 +6,7 @@ mod day4;
 mod day5;
 mod day6;
 mod day7;
+mod day8;
 
 fn main() {
     println!("Day 2: {:?}", solve_day2());
@@ -14,6 +15,7 @@ fn main() {
     println!("Day 5: {:?}", solve_day5());
     println!("Day 6: {:?}", solve_day6());
     println!("Day 7: {:?}", solve_day7());
+    println!("Day 8: {:?}", solve_day8());
 }
 
 fn solve_day2() -> (u16, u16) {
@@ -63,4 +65,9 @@ fn solve_day7() -> (usize, usize) {
         day7::sum_bytesizes(&filesystem.root, 100000, 0),
         day7::find_directory_to_delete(&filesystem.root, 70000000, 30000000),
     )
+}
+
+fn solve_day8() -> (usize, usize) {
+    let input = fs::read_to_string("day8.txt").expect("Should have been able to read day8.txt");
+    (day8::visible_trees_in(&input), 0)
 }
