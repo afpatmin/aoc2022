@@ -89,5 +89,8 @@ fn solve_day9() -> (usize, usize) {
 
 fn solve_day10() -> (usize, usize) {
     let input = fs::read_to_string("day10.txt").expect("Should have been able to read day10.txt");
-    (day10::sum_signal_strengths(&input, 20, 40), 0)
+    (
+        day10::sum_signal_strengths(&input, 20, 40),
+        day10::b(&input),
+    )
 }
