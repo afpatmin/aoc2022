@@ -1,4 +1,4 @@
-use std::{collections::HashSet, hash::Hash, num};
+use std::{collections::HashSet, hash::Hash};
 
 enum Direction {
     North,
