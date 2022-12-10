@@ -1,4 +1,4 @@
-use std::{collections::HashSet, hash::Hash};
+use std::{collections::HashSet, hash::Hash, num};
 
 enum Direction {
     North,
@@ -81,23 +81,12 @@ struct Rope {
 }
 
 impl Rope {
-    pub fn new(x: i32, y: i32) -> Rope {
+    pub fn new(x: i32, y: i32, num_knots: usize) -> Rope {
         let mut visited: HashSet<Position> = HashSet::new();
         visited.insert(Position { x, y });
 
         Rope {
-            knots: vec![
-                Position { x, y },
-                Position { x, y },
-                Position { x, y },
-                Position { x, y },
-                Position { x, y },
-                Position { x, y },
-                Position { x, y },
-                Position { x, y },
-                Position { x, y },
-                Position { x, y },
-            ],
+            knots: (0..num_knots).map(|_| Position { x, y }).collect(),
             visited,
         }
     }
@@ -115,8 +104,8 @@ impl Rope {
     }
 }
 
-pub fn positions_visited_by_tail(input: &str) -> usize {
-    let mut rope = Rope::new(100000, 100000);
+pub fn positions_visited_by_tail(input: &str, knots: usize) -> usize {
+    let mut rope = Rope::new(100000, 100000, knots);
 
     for row in input.split("\r\n") {
         let mut split = row.split(" ");

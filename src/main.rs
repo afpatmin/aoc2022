@@ -79,5 +79,8 @@ fn solve_day8() -> (usize, usize) {
 
 fn solve_day9() -> (usize, usize) {
     let input = fs::read_to_string("day9.txt").expect("Should have been able to read day9.txt");
-    (day9::positions_visited_by_tail(&input), 0)
+    (
+        day9::positions_visited_by_tail(&input, 2),
+        day9::positions_visited_by_tail(&input, 10),
+    )
 }
