@@ -1,5 +1,6 @@
 use std::fs;
 
+mod day10;
 mod day2;
 mod day3;
 mod day4;
@@ -18,6 +19,7 @@ fn main() {
     println!("Day 7: {:?}", solve_day7());
     println!("Day 8: {:?}", solve_day8());
     println!("Day 9: {:?}", solve_day9());
+    println!("Day 10: {:?}", solve_day10());
 }
 
 fn solve_day2() -> (u16, u16) {
@@ -83,4 +85,9 @@ fn solve_day9() -> (usize, usize) {
         day9::positions_visited_by_tail(&input, 2),
         day9::positions_visited_by_tail(&input, 10),
     )
+}
+
+fn solve_day10() -> (usize, usize) {
+    let input = fs::read_to_string("day10.txt").expect("Should have been able to read day10.txt");
+    (day10::sum_signal_strengths(&input, 20, 40), 0)
 }
