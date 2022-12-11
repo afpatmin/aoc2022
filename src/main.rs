@@ -19,7 +19,7 @@ fn main() {
     println!("Day 7: {:?}", solve_day7());
     println!("Day 8: {:?}", solve_day8());
     println!("Day 9: {:?}", solve_day9());
-    println!("Day 10: {:?}", solve_day10());
+    println!("Day 10(a): {:?}", solve_day10());
 }
 
 fn solve_day2() -> (u16, u16) {
@@ -87,10 +87,8 @@ fn solve_day9() -> (usize, usize) {
     )
 }
 
-fn solve_day10() -> (i32, usize) {
+fn solve_day10() -> i32 {
     let input = fs::read_to_string("day10.txt").expect("Should have been able to read day10.txt");
-    (
-        day10::sum_signal_strengths(&input, 20, 40),
-        day10::b(&input),
-    )
+    day10::render_frame(&input);
+    day10::sum_signal_strengths(&input, 20, 40)
 }
