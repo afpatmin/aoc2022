@@ -87,7 +87,13 @@ fn solve_day(n: u8) {
             day10::render_frame(&input);
             println!("b): {}", day10::sum_signal_strengths(&input, 20, 40));
         }
-        11 => {}
+        11 => {
+            println!(
+                "a): {}\nb): {}",
+                day11::evaluate_monkey_business_level(&input, 20),
+                0
+            );
+        }
         12 => {}
         13 => {}
         14 => {}
