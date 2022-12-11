@@ -32,7 +32,7 @@ impl Strike {
     }
 }
 
-pub fn calculate_total_score(input: &str, valid_assumption: bool) -> Result<u16, &str> {
+pub fn calculate_score(input: &str, valid_assumption: bool) -> Result<u16, &str> {
     let rounds = decode(input, valid_assumption)?;
     let score: u16 = rounds
         .iter()
