@@ -90,8 +90,8 @@ fn solve_day(n: u8) {
         11 => {
             println!(
                 "a): {}\nb): {}",
-                day11::evaluate_monkey_business_level(&input, 20),
-                0
+                day11::evaluate_monkey_business_level(&input, 20, 3),
+                day11::evaluate_monkey_business_level(&input, 10000, 1),
             );
         }
         12 => {}

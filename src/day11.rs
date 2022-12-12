@@ -1,9 +1,9 @@
-use std::cmp::Ordering;
+use std::collections::HashSet;
 
 #[derive(Debug, PartialEq, Eq)]
 enum Operation {
-    Multiply(i16),
-    Add(i16),
+    Multiply(i64),
+    Add(i64),
     Square,
 }
 
@@ -47,12 +47,12 @@ impl Operation {
 
 #[derive(PartialEq, Eq)]
 struct Monkey {
-    items: Vec<u32>,
+    items: Vec<u64>,
     operation: Operation,
-    test: u32,
-    on_test_success: u32,
-    on_test_fail: u32,
-    num_inspections: u32,
+    test: u64,
+    on_test_success: u64,
+    on_test_fail: u64,
+    num_inspections: u64,
 }
 impl Ord for Monkey {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
@@ -69,7 +69,7 @@ impl PartialOrd for Monkey {
 impl Monkey {
     pub fn parse(input: &str) -> Result<Monkey, &str> {
         let mut rows = input.split("\r\n");
-        let items: Vec<u32> = rows
+        let items: Vec<u64> = rows
             .by_ref()
             .skip(1)
             .next()
@@ -95,7 +95,7 @@ impl Monkey {
             .skip(1)
             .next()
             .unwrap()
-            .parse::<u32>()
+            .parse::<u64>()
             .unwrap();
 
         let on_test_success = rows
@@ -131,46 +131,58 @@ impl Monkey {
     }
 
     /// Return a tuple where index 1 is item worry level and index 2 is the target monkey
-    pub fn do_turn(&mut self) -> Option<(u32, u32)> {
+    pub fn do_turn(&mut self, relief_factor: u8, modulo: u64) -> Option<(u64, u64)> {
         if self.items.is_empty() {
             return None;
         } else {
-            let mut item = self.items.remove(0);
-            item = match self.operation {
-                Operation::Add(n) => item + n as u32,
-                Operation::Multiply(n) => item * n as u32,
-                Operation::Square => item * item,
-            };
-            item = (item as f32 / 3.0).floor() as u32;
+            let mut worrylvl = self.items.remove(0);
 
-            let target_monkey = match item % self.test == 0 {
+            worrylvl = match self.operation {
+                Operation::Add(n) => worrylvl + n as u64,
+                Operation::Multiply(n) => worrylvl * n as u64,
+                Operation::Square => worrylvl * worrylvl,
+            };
+
+            worrylvl = worrylvl / u64::from(relief_factor);
+            worrylvl = worrylvl % modulo;
+
+            let target_monkey = match worrylvl % self.test == 0 {
                 true => self.on_test_success,
                 false => self.on_test_fail,
             };
 
             self.num_inspections = self.num_inspections + 1;
 
-            return Some((item, target_monkey));
+            return Some((worrylvl, target_monkey));
         }
     }
 
-    pub fn add_item(&mut self, item: u32) {
+    pub fn add_item(&mut self, item: u64) {
         self.items.push(item);
     }
 }
 
-pub fn evaluate_monkey_business_level(input: &str, rounds: usize) -> usize {
+pub fn evaluate_monkey_business_level(input: &str, rounds: usize, relief_factor: u8) -> usize {
+    let mut modulo = 1;
     let monkeys = input.split("\r\n\r\n");
     let mut monkeys: Vec<Monkey> = monkeys.map(|m| Monkey::parse(m).unwrap()).collect();
 
-    for round in 1..=rounds {
+    for m in &monkeys {
+        modulo = modulo * m.test;
+    }
+
+    for _ in 1..=rounds {
         for monkey in 0..monkeys.len() {
-            while let Some((item, target)) = monkeys[monkey].do_turn() {
+            while let Some((item, target)) = monkeys[monkey].do_turn(relief_factor, modulo) {
                 monkeys[target as usize].add_item(item);
             }
         }
     }
     monkeys.sort();
-    monkeys.reverse();
-    (monkeys[0].num_inspections * monkeys[1].num_inspections) as usize
+    for monkey in 0..monkeys.len() {
+        println!("Monkey {}: {}", monkey, monkeys[monkey].num_inspections);
+    }
+
+    (monkeys[monkeys.len() - 1].num_inspections * monkeys[monkeys.len() - 2].num_inspections)
+        as usize
 }
