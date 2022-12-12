@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 #[derive(Debug, PartialEq, Eq)]
 enum Operation {
     Multiply(i64),
@@ -179,9 +177,6 @@ pub fn evaluate_monkey_business_level(input: &str, rounds: usize, relief_factor:
         }
     }
     monkeys.sort();
-    for monkey in 0..monkeys.len() {
-        println!("Monkey {}: {}", monkey, monkeys[monkey].num_inspections);
-    }
 
     (monkeys[monkeys.len() - 1].num_inspections * monkeys[monkeys.len() - 2].num_inspections)
         as usize
