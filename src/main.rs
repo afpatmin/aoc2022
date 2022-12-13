@@ -1,8 +1,8 @@
-use core::prelude;
 use std::fs;
 
 mod day10;
 mod day11;
+mod day12;
 mod day2;
 mod day3;
 mod day4;
@@ -13,7 +13,7 @@ mod day8;
 mod day9;
 
 fn main() {
-    for n in 1..=11 {
+    for n in 1..=12 {
         solve_day(n);
     }
 }
@@ -94,7 +94,13 @@ fn solve_day(n: u8) {
                 day11::evaluate_monkey_business_level(&input, 10000, 1),
             );
         }
-        12 => {}
+        12 => {
+            println!(
+                "a): {}\nb): {}",
+                day12::calc_shortest_route_len(&input, (0, 0), (0, 0)),
+                0
+            );
+        }
         13 => {}
         14 => {}
         15 => {}
