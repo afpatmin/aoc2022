@@ -1,5 +1,3 @@
-use std::rc::Rc;
-
 #[derive(Debug)]
 struct Coord {
     elevation: u32,
@@ -12,7 +10,7 @@ impl Coord {
                 'a'..='z' => input as u32,
                 'S' => 'a' as u32,
                 'E' => 'z' as u32,
-                _ => 0,
+                _ => panic!("Invalid character!"),
             },
         }
     }
@@ -64,14 +62,21 @@ impl Map {
 
 #[derive(Clone)]
 struct PathNode {
+    elevation: u32,
     h: usize,
-    parent: Option<Rc<PathNode>>,
+    parent: Option<Box<PathNode>>,
     position: (usize, usize),
 }
 
 impl PathNode {
-    pub fn new(position: (usize, usize), parent: Option<Rc<PathNode>>, h: usize) -> PathNode {
+    pub fn new(
+        elevation: u32,
+        position: (usize, usize),
+        parent: Option<Box<PathNode>>,
+        h: usize,
+    ) -> PathNode {
         PathNode {
+            elevation,
             position,
             parent,
             h,
@@ -80,7 +85,11 @@ impl PathNode {
 
     pub fn g(&self) -> usize {
         if let Some(p) = &self.parent {
-            p.g() + 1
+            if p.elevation > self.elevation {
+                return p.g() + 100000;
+            } else {
+                p.g() + 1
+            }
         } else {
             0
         }
@@ -93,20 +102,21 @@ impl PathNode {
 
 pub fn calc_shortest_route_len(map_data: &str) -> usize {
     let map = Map::parse(map_data);
-    let mut open: Vec<Rc<PathNode>> = vec![];
-    let mut closed: Vec<Rc<PathNode>> = vec![];
+    let mut open: Vec<Box<PathNode>> = vec![];
+    let mut closed: Vec<Box<PathNode>> = vec![];
 
-    open.push(Rc::new(PathNode::new(
+    open.push(Box::new(PathNode::new(
+        'a' as u32,
         map.start,
         None,
         distance_squared(map.start, map.end),
     )));
 
     loop {
-        open.sort_by(|a, b| b.f().cmp(&a.f()));
         if open.is_empty() {
             break;
         }
+        open.sort_by(|a, b| b.f().cmp(&a.f()));
         let current = open.pop().unwrap();
         closed.push(current.clone());
 
@@ -122,35 +132,33 @@ pub fn calc_shortest_route_len(map_data: &str) -> usize {
             if row >= 0 && row < map.grid.len() as i32 && col >= 0 && col < map.grid[0].len() as i32
             {
                 let adj_pos = (row as usize, col as usize);
-                let current_elevation =
-                    map.grid[current.position.0][current.position.1].elevation as i32;
-                let adjacent_elevation = map.grid[adj_pos.0][adj_pos.1].elevation as i32;
+                //let curr_el = map.grid[current.position.0][current.position.1].elevation as i32;
+                let adj_el = map.grid[adj_pos.0][adj_pos.1].elevation as i32;
+                /*
+                if adj_el - curr_el > 1 {
+                    continue;
+                } */
                 if let Some(_) = closed.iter().find(|n| n.position == adj_pos) {
                     continue;
                 }
-                if adjacent_elevation - current_elevation > 1 {
-                    continue;
-                }
-
-                let new_node = Rc::new(PathNode::new(
-                    adj_pos,
-                    Some(current.clone()),
-                    distance_squared(adj_pos, map.end),
-                ));
-
-                if let Some(i) = open.iter().position(|n| n.position == adj_pos) {
-                    if open[i].g() < current.g() {
-                        open[i] = new_node;
+                if let Some(adj) = open.iter_mut().find(|n| n.position == adj_pos) {
+                    if adj.g() > current.g() {
+                        adj.parent = Some(current.clone());
                     }
                 } else {
-                    open.push(new_node);
+                    open.push(Box::new(PathNode::new(
+                        adj_el as u32,
+                        adj_pos,
+                        Some(current.clone()),
+                        distance_squared(adj_pos, map.end),
+                    )));
                 }
             }
         }
     }
 
     let mut node = closed.last().unwrap();
-    let mut path: Vec<Rc<PathNode>> = vec![node.clone()];
+    let mut path: Vec<Box<PathNode>> = vec![node.clone()];
     while let Some(n) = &node.parent {
         node = n;
         path.push(node.clone());
