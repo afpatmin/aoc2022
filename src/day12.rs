@@ -5,6 +5,7 @@ struct Coord {
 }
 
 struct Map {
+    chars: Vec<Vec<char>>,
     heights: Vec<Vec<usize>>,
     start: Coord,
     end: Coord,
@@ -12,9 +13,11 @@ struct Map {
 
 impl Map {
     pub fn parse(input: &str) -> Map {
-        let mut height_map: Vec<Vec<usize>> = vec![];
+        let mut heights: Vec<Vec<usize>> = vec![];
+        let mut chars: Vec<Vec<char>> = vec![];
         for row in input.split("\r\n") {
-            height_map.push(
+            chars.push(row.chars().collect());
+            heights.push(
                 row.chars()
                     .map(|c| match c {
                         'a'..='z' => c as usize - 97,
@@ -36,7 +39,8 @@ impl Map {
             .position(|c| c == 'E')
             .unwrap();
         let mut map = Map {
-            heights: height_map,
+            chars,
+            heights,
             start: Coord { row: 0, col: 0 },
             end: Coord { row: 0, col: 0 },
         };
@@ -50,13 +54,26 @@ impl Map {
         map.end = coord(e_index, col_count);
         map
     }
+
+    pub fn mark_node(&mut self, coord: &Coord, symbol: char) {
+        self.chars[coord.row][coord.col] = symbol;
+    }
+
+    pub fn print(&self) {
+        for row in &self.chars {
+            for char in row {
+                print!("{}", char);
+            }
+            print!("\n");
+        }
+    }
 }
 
 #[derive(Clone)]
 struct Node {
-    f: usize,
+    f: f32,
     g: usize,
-    h: usize,
+    h: f32,
     pos: Coord,
     adjacent: Vec<Coord>,
     parent: Option<Box<Node>>,
@@ -65,9 +82,11 @@ struct Node {
 impl Node {
     pub fn new(pos: Coord, map: &Map, adjacent: Vec<Coord>) -> Node {
         Node {
-            f: usize::MAX,
+            f: f32::MAX,
             g: usize::MAX,
-            h: (pos.row.abs_diff(map.end.row) + pos.col.abs_diff(map.end.col)), //(pos.row.abs_diff(map.end.row)).pow(2) + (pos.col.abs_diff(map.end.col)).pow(2),
+            h: ((pos.row.abs_diff(map.end.row).pow(2) + (pos.col.abs_diff(map.end.col)).pow(2))
+                as f32)
+                .sqrt(),
             pos,
             adjacent: adjacent,
             parent: None,
@@ -99,7 +118,7 @@ impl Node {
 }
 
 pub fn pathfinder(map_data: &str) -> usize {
-    let map = Map::parse(map_data);
+    let mut map = Map::parse(map_data);
 
     let mut counter = 0;
     let mut open_set: Vec<Node> = vec![];
@@ -110,15 +129,15 @@ pub fn pathfinder(map_data: &str) -> usize {
         &map,
         Node::find_neighbors(&map.start, &map),
     );
-    current.f = 0;
+    current.f = 0.0;
     current.g = 0;
     open_set.push(current.clone());
 
     loop {
         if open_set.is_empty() {
-            //  break;
+            break;
         }
-        open_set.sort_by(|a, b| b.f.cmp(&a.f));
+        open_set.sort_by(|a, b| b.f.total_cmp(&a.f));
         current = open_set.pop().unwrap();
         closed_set.push(current.clone());
 
@@ -132,7 +151,7 @@ pub fn pathfinder(map_data: &str) -> usize {
                 &map,
                 Node::find_neighbors(adj_coord, &map),
             );
-            adj.parent = Some(Box::new(Node::new(current.pos.clone(), &map, vec![])));
+            adj.parent = Some(Box::new(current.clone()));
 
             if let None = closed_set.iter().find(|item| item.pos == adj.pos) {
                 if let None = open_set
@@ -140,8 +159,7 @@ pub fn pathfinder(map_data: &str) -> usize {
                     .find(|item| item.pos == adj.pos && item.f < adj.f)
                 {
                     adj.g = current.g + 1;
-                    adj.f = adj.g + adj.h;
-
+                    adj.f = adj.g as f32 + adj.h;
                     open_set.push(adj);
                 }
             }
@@ -150,12 +168,27 @@ pub fn pathfinder(map_data: &str) -> usize {
         counter = counter + 1;
     }
 
-    let path: Vec<Coord> = vec![];
-    //let mut node = current.clone();
-    while let Some(p) = current.parent {
-        println!("{:?}", current.pos);
-        current = p.as_ref().clone();
+    let mut path: Vec<Coord> = vec![];
+    while let Some(parent) = current.parent {
+        path.push(current.pos);
+        current = *parent;
     }
-
-    counter
+    path.reverse();
+    for node in 0..path.len() - 1 {
+        if node == 0 {
+            map.mark_node(&path[node], '-');
+        } else {
+            if path[node + 1].row > path[node].row {
+                map.mark_node(&path[node], '\u{2193}');
+            } else if path[node + 1].row < path[node].row {
+                map.mark_node(&path[node], '\u{2191}');
+            } else if path[node + 1].col < path[node].col {
+                map.mark_node(&path[node], '\u{2190}');
+            } else if path[node + 1].col > path[node].col {
+                map.mark_node(&path[node], '\u{2192}');
+            }
+        }
+    }
+    map.print();
+    path.len()
 }
