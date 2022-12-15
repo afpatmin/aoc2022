@@ -51,17 +51,18 @@ impl Map {
     }
 }
 
-#[derive(Clone)]
 struct Node {
     g: usize,
     h: usize,
+    parent: Option<Box<Node>>,
 }
 
 impl Node {
-    pub fn new(g: usize, pos: &Coord, end: &Coord) -> Node {
+    pub fn new(g: usize, pos: &Coord, end: &Coord, parent: Option<Box<Node>>) -> Node {
         Node {
             g,
             h: (pos.row.abs_diff(end.row)).pow(2) + (pos.col.abs_diff(end.col)).pow(2),
+            parent: None,
         }
     }
 
@@ -72,5 +73,8 @@ impl Node {
 
 pub fn pathfinder(map_data: &str) -> usize {
     let map = Map::parse(map_data);
+
+    let current = Node::new(0, &map.start, &map.end, None);
+
     0
 }
