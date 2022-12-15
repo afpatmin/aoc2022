@@ -1,6 +1,4 @@
-use std::{collections::HashSet, iter::successors};
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 struct Coord {
     row: usize,
     col: usize,
@@ -54,7 +52,7 @@ impl Map {
     }
 }
 
-#[derive(Clone, PartialEq, Eq, Hash)]
+#[derive(Clone)]
 struct Node {
     f: usize,
     g: usize,
@@ -69,14 +67,14 @@ impl Node {
         Node {
             f: usize::MAX,
             g: usize::MAX,
-            h: (pos.row.abs_diff(map.end.row)).pow(2) + (pos.col.abs_diff(map.end.col)).pow(2),
+            h: (pos.row.abs_diff(map.end.row) + pos.col.abs_diff(map.end.col)), //(pos.row.abs_diff(map.end.row)).pow(2) + (pos.col.abs_diff(map.end.col)).pow(2),
             pos,
             adjacent: adjacent,
             parent: None,
         }
     }
 
-    fn find_adjacent(pos: Coord, map: &Map) -> Vec<Coord> {
+    fn find_neighbors(pos: &Coord, map: &Map) -> Vec<Coord> {
         let mut output: Vec<Coord> = vec![];
         let node_elevation = map.heights[pos.row][pos.col] as i32;
         for c in &[(-1, 0), (0, 1), (1, 0), (0, -1)] {
@@ -104,58 +102,60 @@ pub fn pathfinder(map_data: &str) -> usize {
     let map = Map::parse(map_data);
 
     let mut counter = 0;
-    let mut open_set: HashSet<Node> = HashSet::new();
-    let mut closed_set: HashSet<Node> = HashSet::new();
+    let mut open_set: Vec<Node> = vec![];
+    let mut closed_set: Vec<Node> = vec![];
 
-    let mut current = Node::new(map.start, &map, Node::find_adjacent(map.start, &map));
+    let mut current = Node::new(
+        map.start.clone(),
+        &map,
+        Node::find_neighbors(&map.start, &map),
+    );
     current.f = 0;
     current.g = 0;
-    open_set.insert(current.clone());
+    open_set.push(current.clone());
 
     loop {
         if open_set.is_empty() {
-            break;
+            //  break;
         }
-        current = open_set
-            .iter()
-            .reduce(|accum, item| {
-                if accum.f < item.f || (accum.f == item.f && accum.g < item.g) {
-                    accum
-                } else {
-                    item
-                }
-            })
-            .unwrap()
-            .clone();
+        open_set.sort_by(|a, b| b.f.cmp(&a.f));
+        current = open_set.pop().unwrap();
+        closed_set.push(current.clone());
+
         if current.pos == map.end {
             break;
         }
-        open_set.remove(&current);
 
         for adj_coord in &current.adjacent {
-            let old_adj = Node::new(*adj_coord, &map, Node::find_adjacent(*adj_coord, &map));
-            let mut adj = old_adj.clone();
-            adj.g = current.g + 1;
-            adj.f = adj.g + adj.h;
-            adj.parent = Some(Box::new(current.clone()));
+            let mut adj = Node::new(
+                adj_coord.clone(),
+                &map,
+                Node::find_neighbors(adj_coord, &map),
+            );
+            adj.parent = Some(Box::new(Node::new(current.pos.clone(), &map, vec![])));
 
-            if let None = open_set
-                .iter()
-                .find(|item| item.pos == adj.pos && item.f < adj.f)
-            {
-                if let None = closed_set
+            if let None = closed_set.iter().find(|item| item.pos == adj.pos) {
+                if let None = open_set
                     .iter()
                     .find(|item| item.pos == adj.pos && item.f < adj.f)
                 {
-                    open_set.remove(&old_adj);
-                    open_set.insert(adj);
+                    adj.g = current.g + 1;
+                    adj.f = adj.g + adj.h;
+
+                    open_set.push(adj);
                 }
             }
         }
-        closed_set.insert(current);
 
         counter = counter + 1;
     }
 
-    0
+    let path: Vec<Coord> = vec![];
+    //let mut node = current.clone();
+    while let Some(p) = current.parent {
+        println!("{:?}", current.pos);
+        current = p.as_ref().clone();
+    }
+
+    counter
 }
