@@ -95,7 +95,7 @@ fn solve_day(n: u8) {
             );
         }
         12 => {
-            println!("a): {}\nb): {}", day12::calc_shortest_route_len(&input), 0);
+            println!("a): {}\nb): {}", day12::pathfinder(&input), 0);
         }
         13 => {}
         14 => {}
