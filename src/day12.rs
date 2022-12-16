@@ -117,18 +117,11 @@ impl Node {
     }
 }
 
-pub fn pathfinder(map_data: &str) -> usize {
-    let mut map = Map::parse(map_data);
-
-    let mut counter = 0;
+fn find_path(start: &Coord, map: &Map) -> Vec<Coord> {
     let mut open_set: Vec<Node> = vec![];
     let mut closed_set: Vec<Node> = vec![];
 
-    let mut current = Node::new(
-        map.start.clone(),
-        &map,
-        Node::find_neighbors(&map.start, &map),
-    );
+    let mut current = Node::new(start.clone(), &map, Node::find_neighbors(&start, &map));
     current.f = 0.0;
     current.g = 0;
     open_set.push(current.clone());
@@ -164,8 +157,6 @@ pub fn pathfinder(map_data: &str) -> usize {
                 }
             }
         }
-
-        counter = counter + 1;
     }
 
     let mut path: Vec<Coord> = vec![];
@@ -174,21 +165,68 @@ pub fn pathfinder(map_data: &str) -> usize {
         current = *parent;
     }
     path.reverse();
+    path
+}
+
+pub fn find_path_from_map_start(map_data: &str) -> usize {
+    let mut map = Map::parse(map_data);
+    let start = map.start.clone();
+    let path = find_path(&start, &mut map);
+
     for node in 0..path.len() - 1 {
         if node == 0 {
             map.mark_node(&path[node], '-');
         } else {
             if path[node + 1].row > path[node].row {
-                map.mark_node(&path[node], '\u{2193}');
+                map.mark_node(&path[node], '-');
             } else if path[node + 1].row < path[node].row {
-                map.mark_node(&path[node], '\u{2191}');
+                map.mark_node(&path[node], '-');
             } else if path[node + 1].col < path[node].col {
-                map.mark_node(&path[node], '\u{2190}');
+                map.mark_node(&path[node], '-');
             } else if path[node + 1].col > path[node].col {
-                map.mark_node(&path[node], '\u{2192}');
+                map.mark_node(&path[node], '-');
             }
         }
     }
     map.print();
     path.len()
+}
+
+pub fn find_shortest_hike(map_data: &str) -> usize {
+    let mut map = Map::parse(map_data);
+    let mut shortest_path_len = usize::MAX;
+    let mut shortest_path: Vec<Coord> = vec![];
+    for row in 0..map.heights.len() {
+        println!("Checking row: {}/{}", row + 1, map.heights.len());
+        for col in 0..map.heights[0].len() {
+            if map.heights[row][col] == 0 {
+                let coord = Coord { row, col };
+                let path = find_path(&coord, &mut map);
+                if let Some(last) = path.last() {
+                    if *last == map.end && path.len() < shortest_path_len {
+                        shortest_path_len = path.len();
+                        shortest_path = path;
+                    }
+                }
+            }
+        }
+    }
+
+    for node in 0..shortest_path.len() - 1 {
+        if node == 0 {
+            map.mark_node(&shortest_path[node], '-');
+        } else {
+            if shortest_path[node + 1].row > shortest_path[node].row {
+                map.mark_node(&shortest_path[node], '-');
+            } else if shortest_path[node + 1].row < shortest_path[node].row {
+                map.mark_node(&shortest_path[node], '-');
+            } else if shortest_path[node + 1].col < shortest_path[node].col {
+                map.mark_node(&shortest_path[node], '-');
+            } else if shortest_path[node + 1].col > shortest_path[node].col {
+                map.mark_node(&shortest_path[node], '-');
+            }
+        }
+    }
+    map.print();
+    shortest_path_len
 }

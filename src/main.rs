@@ -95,7 +95,11 @@ fn solve_day(n: u8) {
             );
         }
         12 => {
-            println!("a): {}\nb): {}", day12::pathfinder(&input), 0);
+            println!(
+                "a): {}\nb): {}",
+                day12::find_path_from_map_start(&input),
+                day12::find_shortest_hike(&input)
+            );
         }
         13 => {}
         14 => {}
