@@ -3,6 +3,7 @@ use std::fs;
 mod day10;
 mod day11;
 mod day12;
+mod day13;
 mod day2;
 mod day3;
 mod day4;
@@ -13,7 +14,7 @@ mod day8;
 mod day9;
 
 fn main() {
-    for n in 1..=12 {
+    for n in 13..=13 {
         solve_day(n);
     }
 }
@@ -101,7 +102,9 @@ fn solve_day(n: u8) {
                 day12::find_shortest_hike(&input)
             );
         }
-        13 => {}
+        13 => {
+            println!("a):{}", day13::count_valid_packet_pairs(&input));
+        }
         14 => {}
         15 => {}
         16 => {}
